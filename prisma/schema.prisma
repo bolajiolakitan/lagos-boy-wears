@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(CUSTOMER)
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String      @unique
+  description String
+  price       Int         // price in NGN kobo (e.g. 2500000 = NGN 25,000)
+  images      String[]
+  sizes       String[]    // ["S", "M", "L", "XL", "XXL"]
+  stock       Int         @default(0)
+  category    String      // "tops" | "bottoms" | "accessories"
+  isActive    Boolean     @default(true)
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Order {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  user         User        @relation(fields: [userId], references: [id])
+  userId       String      @db.ObjectId
+  items        OrderItem[]
+  total        Int         // total in NGN kobo
+  status       OrderStatus @default(PENDING)
+  address      Json        // { name, phone, street, area, city }
+  paystackRef  String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @db.ObjectId
+  size      String
+  quantity  Int
+  price     Int     // price at time of order
+}
