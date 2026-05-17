@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ interface Product {
     stock: number;
 }
 
-export default function ShopPage() {
+function ShopContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const categoryParam = searchParams.get("category") || "";
@@ -275,5 +275,13 @@ export default function ShopPage() {
                 </p>
             </div>
         </>
+    );
+}
+
+export default function ShopPage() {
+    return (
+        <Suspense fallback={<div style={{ padding: "4rem", textAlign: "center", fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}>LOADING...</div>}>
+            <ShopContent />
+        </Suspense>
     );
 }
