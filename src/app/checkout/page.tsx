@@ -107,13 +107,13 @@ export default function CheckoutPage() {
             <div className="container" style={{ padding: "3rem 1.5rem" }}>
                 <h1 style={{ marginBottom: "2.5rem" }}>CHECKOUT</h1>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr min(420px, 100%)", gap: "3rem", alignItems: "start" }}>
+                <div className="checkout-grid" style={{ display: "grid", gap: "3rem", alignItems: "start" }}>
                     {/* Delivery Form */}
                     <div>
                         <h2 style={{ fontSize: "1.1rem", letterSpacing: "0.05em", marginBottom: "1.5rem", paddingBottom: "1rem", borderBottom: "2px solid var(--black)" }}>
                             DELIVERY DETAILS
                         </h2>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                        <div className="checkout-form-grid" style={{ display: "grid", gap: "1rem" }}>
                             {[
                                 { key: "name", label: "Full Name", type: "text", placeholder: "Your Name", span: 2 },
                                 { key: "email", label: "Email", type: "email", placeholder: "your@email.com", span: 1 },
@@ -228,6 +228,26 @@ export default function CheckoutPage() {
                     </div>
                 </div>
             </div>
+            <style>{`
+        .checkout-grid {
+          grid-template-columns: 1fr min(420px, 100%);
+        }
+        .checkout-form-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        @media (max-width: 768px) {
+          .checkout-grid {
+            grid-template-columns: 1fr !important;
+            gap: 2.5rem !important;
+          }
+          .checkout-form-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .checkout-form-grid > div {
+            grid-column: span 1 !important;
+          }
+        }
+      `}</style>
         </>
     );
 }
