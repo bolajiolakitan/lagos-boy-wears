@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+const PRESET_COLORS = ["Black", "White", "Cream", "Brown", "Grey", "Navy", "Red", "Green", "Blue", "Olive", "Orange", "Pink"];
 
 interface UploadedImage {
   url: string;
@@ -28,9 +29,10 @@ export default function EditProductPage() {
     collectionId: "",
     stock: "",
     sizes: [] as string[],
-    colorsInput: "",
+    colors: [] as string[],
     isActive: true,
   });
+  const [customColor, setCustomColor] = useState("");
 
   useEffect(() => {
     fetch("/api/collections?all=true")
@@ -54,7 +56,7 @@ export default function EditProductPage() {
               collectionId: p.collectionId ?? "",
               stock: String(p.stock),
               sizes: p.sizes ?? [],
-              colorsInput: p.colors ? p.colors.join(", ") : "",
+              colors: p.colors ?? [],
               isActive: p.isActive,
             });
             setImages((p.images ?? []).map((url: string) => ({ url, preview: url })));
@@ -70,6 +72,26 @@ export default function EditProductPage() {
       ...f,
       sizes: f.sizes.includes(size) ? f.sizes.filter((s) => s !== size) : [...f.sizes, size],
     }));
+  };
+
+  const toggleColor = (color: string) => {
+    setForm((f) => ({
+      ...f,
+      colors: f.colors.includes(color) ? f.colors.filter((c) => c !== color) : [...f.colors, color],
+    }));
+  };
+
+  const addCustomColor = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!customColor.trim()) return;
+    const formatted = customColor.trim();
+    if (!form.colors.includes(formatted)) {
+      setForm((f) => ({
+        ...f,
+        colors: [...f.colors, formatted],
+      }));
+    }
+    setCustomColor("");
   };
 
   const handleFiles = async (files: FileList | null) => {
@@ -126,9 +148,7 @@ export default function EditProductPage() {
           collectionId: form.collectionId || null,
           stock: Number(form.stock),
           sizes: form.sizes.length > 0 ? form.sizes : ["S", "M", "L", "XL"],
-          colors: form.colorsInput
-            ? form.colorsInput.split(",").map((c) => c.trim()).filter((c) => c.length > 0)
-            : [],
+          colors: form.colors,
           images: images.map((img) => img.url),
           isActive: form.isActive,
         }),
@@ -278,17 +298,53 @@ export default function EditProductPage() {
 
         {/* Colors */}
         <div>
-          <label style={labelStyle}>Available Colors (Comma-separated)</label>
-          <input
-            type="text"
-            value={form.colorsInput}
-            onChange={(e) => setForm({ ...form, colorsInput: e.target.value })}
-            className="input-field"
-            placeholder="e.g. Cream, Vintage Black, Off-White, Crimson"
-          />
-          <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)", marginTop: "0.5rem", letterSpacing: "0.03em" }}>
-            Separate different color options with commas. Leave blank if product has no colorways.
-          </p>
+          <label style={labelStyle}>Available Colors</label>
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+            {PRESET_COLORS.map((color) => (
+              <button
+                key={color}
+                type="button"
+                onClick={() => toggleColor(color)}
+                style={{
+                  padding: "0.5rem 1rem",
+                  border: "2px solid var(--black)",
+                  background: form.colors.includes(color) ? "var(--black)" : "transparent",
+                  color: form.colors.includes(color) ? "var(--white)" : "var(--black)",
+                  fontFamily: "var(--font-body)",
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                {color}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
+            <input
+              type="text"
+              value={customColor}
+              onChange={(e) => setCustomColor(e.target.value)}
+              className="input-field"
+              placeholder="Or type a custom color (e.g. Sage Green)..."
+              style={{ marginBottom: 0, flex: 1 }}
+            />
+            <button
+              onClick={addCustomColor}
+              className="btn-primary"
+              style={{ padding: "0 1.5rem", height: "46px" }}
+            >
+              Add
+            </button>
+          </div>
+          
+          {form.colors.length > 0 && (
+            <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--gray-600)", marginTop: "0.75rem" }}>
+              SELECTED: {form.colors.join(", ")}
+            </p>
+          )}
         </div>
 
         {/* Active toggle */}
