@@ -528,7 +528,7 @@ export default function ProductDetailPage() {
                                         value={reviewName}
                                         onChange={(e) => setReviewName(e.target.value)}
                                         className="input-field"
-                                        placeholder="e.g. Bolaji O."
+                                        placeholder="e.g. David K."
                                         required
                                         style={{ marginBottom: 0 }}
                                     />
@@ -542,7 +542,7 @@ export default function ProductDetailPage() {
                                         value={reviewEmail}
                                         onChange={(e) => setReviewEmail(e.target.value)}
                                         className="input-field"
-                                        placeholder="e.g. bolaji@lagosboy.com"
+                                        placeholder="e.g. david@example.com"
                                         required
                                         style={{ marginBottom: 0 }}
                                     />
