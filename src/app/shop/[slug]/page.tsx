@@ -55,7 +55,7 @@ export default function ProductDetailPage() {
         }).format(p / 100);
 
     const handleAddToCart = () => {
-        if (!selectedSize) {
+        if (product && product.sizes.length > 0 && !selectedSize) {
             toast.error("Please select a size");
             return;
         }
@@ -65,7 +65,7 @@ export default function ProductDetailPage() {
             name: product.name,
             price: product.price,
             image: product.images[0] || "",
-            size: selectedSize,
+            size: selectedSize || "OS",
             quantity,
             slug: product.slug,
         });
@@ -73,7 +73,7 @@ export default function ProductDetailPage() {
     };
 
     const handleBuyNow = () => {
-        if (!selectedSize) {
+        if (product && product.sizes.length > 0 && !selectedSize) {
             toast.error("Please select a size");
             return;
         }
@@ -269,40 +269,42 @@ export default function ProductDetailPage() {
                         </p>
 
                         {/* Size Selector */}
-                        <div style={{ marginBottom: "2rem" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                                <p style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.875rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                                    Size: {selectedSize && <span style={{ fontFamily: "var(--font-mono)" }}>{selectedSize}</span>}
-                                </p>
-                                <button
-                                    onClick={() => setShowSizeGuide(true)}
-                                    style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", letterSpacing: "0.05em", textDecoration: "underline", background: "none", color: "var(--gray-400)" }}
-                                >
-                                    SIZE GUIDE
-                                </button>
-                            </div>
-                            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                                {product.sizes.sort((a, b) => SIZES_ORDER.indexOf(a) - SIZES_ORDER.indexOf(b)).map((size) => (
+                        {product.sizes && product.sizes.length > 0 && (
+                            <div style={{ marginBottom: "2rem" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                                    <p style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.875rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                        Size: {selectedSize && <span style={{ fontFamily: "var(--font-mono)" }}>{selectedSize}</span>}
+                                    </p>
                                     <button
-                                        key={size}
-                                        onClick={() => setSelectedSize(size)}
-                                        style={{
-                                            width: "48px",
-                                            height: "48px",
-                                            border: "2px solid var(--black)",
-                                            background: selectedSize === size ? "var(--black)" : "transparent",
-                                            color: selectedSize === size ? "var(--white)" : "var(--black)",
-                                            fontFamily: "var(--font-body)",
-                                            fontWeight: 700,
-                                            fontSize: "0.8rem",
-                                            transition: "all 0.15s ease",
-                                        }}
+                                        onClick={() => setShowSizeGuide(true)}
+                                        style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", letterSpacing: "0.05em", textDecoration: "underline", background: "none", color: "var(--gray-400)" }}
                                     >
-                                        {size}
+                                        SIZE GUIDE
                                     </button>
-                                ))}
+                                </div>
+                                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                                    {product.sizes.sort((a, b) => SIZES_ORDER.indexOf(a) - SIZES_ORDER.indexOf(b)).map((size) => (
+                                        <button
+                                            key={size}
+                                            onClick={() => setSelectedSize(size)}
+                                            style={{
+                                                width: "48px",
+                                                height: "48px",
+                                                border: "2px solid var(--black)",
+                                                background: selectedSize === size ? "var(--black)" : "transparent",
+                                                color: selectedSize === size ? "var(--white)" : "var(--black)",
+                                                fontFamily: "var(--font-body)",
+                                                fontWeight: 700,
+                                                fontSize: "0.8rem",
+                                                transition: "all 0.15s ease",
+                                            }}
+                                        >
+                                            {size}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Quantity */}
                         <div style={{ marginBottom: "1.5rem" }}>
