@@ -35,19 +35,21 @@ model User {
 }
 
 model Product {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  slug        String      @unique
-  description String
-  price       Int         // price in NGN kobo (e.g. 2500000 = NGN 25,000)
-  images      String[]
-  sizes       String[]    // ["S", "M", "L", "XL", "XXL"]
-  stock       Int         @default(0)
-  category    String      // "tops" | "bottoms" | "accessories"
-  isActive    Boolean     @default(true)
-  orderItems  OrderItem[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  slug         String      @unique
+  description  String
+  price        Int         // price in NGN kobo (e.g. 2500000 = NGN 25,000)
+  images       String[]
+  sizes        String[]    // ["S", "M", "L", "XL", "XXL"]
+  stock        Int         @default(0)
+  category     String      // "tops" | "bottoms" | "accessories"
+  isActive     Boolean     @default(true)
+  collectionId String?     @db.ObjectId
+  collection   Collection? @relation(fields: [collectionId], references: [id])
+  orderItems   OrderItem[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
 
 model Order {
@@ -72,4 +74,16 @@ model OrderItem {
   size      String
   quantity  Int
   price     Int     // price at time of order
+}
+
+model Collection {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String    @unique
+  description String
+  coverImage  String
+  isActive    Boolean   @default(true)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

@@ -6,11 +6,13 @@ import { authOptions } from "@/lib/auth";
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
+    const collectionId = searchParams.get("collectionId");
     const q = searchParams.get("q");
 
     try {
         const where: any = { isActive: true };
         if (category) where.category = category;
+        if (collectionId) where.collectionId = collectionId;
         if (q) {
             where.OR = [
                 { name: { contains: q, mode: "insensitive" } },
@@ -31,6 +33,14 @@ export async function GET(req: NextRequest) {
                 stock: true,
                 category: true,
                 isActive: true,
+                collectionId: true,
+                collection: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                    }
+                }
             },
         });
 
@@ -49,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { name, description, price, images, sizes, stock, category } = body;
+        const { name, description, price, images, sizes, stock, category, collectionId } = body;
 
         if (!name || !description || !price || !category) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -70,6 +80,7 @@ export async function POST(req: NextRequest) {
                 sizes: sizes || ["S", "M", "L", "XL", "XXL"],
                 stock: Number(stock) || 0,
                 category,
+                collectionId: collectionId || null,
                 isActive: true,
             },
         });

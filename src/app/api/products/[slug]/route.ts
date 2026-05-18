@@ -10,11 +10,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
         // Try by slug first, then by ID
         let product = await prisma.product.findUnique({
             where: { slug },
+            include: { collection: true }
         });
 
         if (!product) {
             product = await prisma.product.findFirst({
                 where: { id: slug, isActive: true },
+                include: { collection: true }
             });
         }
 

@@ -19,15 +19,24 @@ export default function EditProductPage() {
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [saving, setSaving] = useState(false);
   const [images, setImages] = useState<UploadedImage[]>([]);
+  const [collections, setCollections] = useState<any[]>([]);
   const [form, setForm] = useState({
     name: "",
     description: "",
     price: "",
     category: "tops",
+    collectionId: "",
     stock: "",
     sizes: [] as string[],
     isActive: true,
   });
+
+  useEffect(() => {
+    fetch("/api/collections?all=true")
+      .then((r) => r.json())
+      .then((data) => setCollections(data.collections ?? []))
+      .catch((err) => console.error("Error loading collections:", err));
+  }, []);
 
   useEffect(() => {
     if (params.slug) {
@@ -41,6 +50,7 @@ export default function EditProductPage() {
               description: p.description,
               price: String(p.price / 100),
               category: p.category,
+              collectionId: p.collectionId ?? "",
               stock: String(p.stock),
               sizes: p.sizes ?? [],
               isActive: p.isActive,
@@ -111,6 +121,7 @@ export default function EditProductPage() {
           description: form.description,
           price: Number(form.price) * 100,
           category: form.category,
+          collectionId: form.collectionId || null,
           stock: Number(form.stock),
           sizes: form.sizes.length > 0 ? form.sizes : ["S", "M", "L", "XL"],
           images: images.map((img) => img.url),
@@ -231,6 +242,19 @@ export default function EditProductPage() {
             <option value="tops">Tops</option>
             <option value="bottoms">Bottoms</option>
             <option value="accessories">Accessories</option>
+          </select>
+        </div>
+
+        {/* Collection */}
+        <div>
+          <label style={labelStyle}>Linked Collection (Drop)</label>
+          <select value={form.collectionId} onChange={(e) => setForm({ ...form, collectionId: e.target.value })} className="input-field" style={{ appearance: "none", cursor: "pointer" }}>
+            <option value="">No Collection (Standalone product)</option>
+            {collections.map((col) => (
+              <option key={col.id} value={col.id}>
+                {col.name} {!col.isActive ? " (Inactive)" : ""}
+              </option>
+            ))}
           </select>
         </div>
 

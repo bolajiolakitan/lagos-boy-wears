@@ -90,6 +90,22 @@ export default function Header() {
                         Shop
                     </Link>
 
+                    <Link
+                        href="/collections"
+                        style={{
+                            fontFamily: "var(--font-body)",
+                            fontWeight: 500,
+                            fontSize: "0.875rem",
+                            letterSpacing: "0.05em",
+                            textTransform: "uppercase",
+                            transition: "opacity var(--transition)",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.5")}
+                        onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                    >
+                        Drops
+                    </Link>
+
                     {session?.user ? (
                         <>
                             {(session.user as any).role === "ADMIN" && (
@@ -224,6 +240,7 @@ export default function Header() {
                     className="mobile-menu"
                 >
                     <Link href="/shop" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Shop</Link>
+                    <Link href="/collections" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Drops</Link>
                     {session?.user ? (
                         <>
                             <Link href="/account" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Account</Link>

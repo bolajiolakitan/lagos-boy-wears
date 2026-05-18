@@ -15,6 +15,10 @@ interface Product {
     sizes: string[];
     stock: number;
     category: string;
+    collection?: {
+        name: string;
+        slug: string;
+    } | null;
 }
 
 const SIZES_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -196,6 +200,25 @@ export default function ProductDetailPage() {
 
                     {/* Product Info */}
                     <div>
+                        {product.collection && (
+                            <a
+                                href={`/collections/${product.collection.slug}`}
+                                style={{
+                                    display: "inline-block",
+                                    fontFamily: "var(--font-mono)",
+                                    fontSize: "0.6rem",
+                                    letterSpacing: "0.1em",
+                                    textTransform: "uppercase",
+                                    background: "var(--black)",
+                                    color: "var(--white)",
+                                    padding: "0.25rem 0.6rem",
+                                    marginBottom: "1rem",
+                                    fontWeight: 700,
+                                }}
+                            >
+                                Part of the {product.collection.name} drop
+                            </a>
+                        )}
                         <p
                             style={{
                                 fontFamily: "var(--font-mono)",

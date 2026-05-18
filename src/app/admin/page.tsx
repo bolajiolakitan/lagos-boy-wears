@@ -63,6 +63,7 @@ export default async function AdminDashboard() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2.5rem" }}>
                 <h1>ADMIN DASHBOARD</h1>
                 <div style={{ display: "flex", gap: "1rem" }}>
+                    <Link href="/admin/collections" className="btn-secondary" style={{ padding: "0.5rem 1rem", fontSize: "0.8rem" }}>Manage Collections</Link>
                     <Link href="/admin/products" className="btn-secondary" style={{ padding: "0.5rem 1rem", fontSize: "0.8rem" }}>Manage Products</Link>
                     <Link href="/admin/orders" className="btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.8rem" }}>View Orders</Link>
                 </div>

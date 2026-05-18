@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -21,10 +21,19 @@ export default function NewProductPage() {
     description: "",
     price: "",
     category: "tops",
+    collectionId: "",
     stock: "",
     sizes: [] as string[],
   });
   const [images, setImages] = useState<UploadedImage[]>([]);
+  const [collections, setCollections] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/collections?all=true")
+      .then((res) => res.json())
+      .then((data) => setCollections(data.collections || []))
+      .catch((err) => console.error("Error loading collections:", err));
+  }, []);
 
   const toggleSize = (size: string) => {
     setForm((f) => ({
@@ -100,6 +109,7 @@ export default function NewProductPage() {
           stock: Number(form.stock),
           images: images.map((img) => img.url),
           sizes: form.sizes.length > 0 ? form.sizes : ["S", "M", "L", "XL"],
+          collectionId: form.collectionId || null,
         }),
       });
 
@@ -285,6 +295,24 @@ export default function NewProductPage() {
             <option value="tops">Tops</option>
             <option value="bottoms">Bottoms</option>
             <option value="accessories">Accessories</option>
+          </select>
+        </div>
+
+        {/* Collection */}
+        <div>
+          <label style={labelStyle}>Linked Collection (Drop)</label>
+          <select
+            value={form.collectionId}
+            onChange={(e) => setForm({ ...form, collectionId: e.target.value })}
+            className="input-field"
+            style={{ appearance: "none", cursor: "pointer" }}
+          >
+            <option value="">No Collection (Standalone product)</option>
+            {collections.map((col) => (
+              <option key={col.id} value={col.id}>
+                {col.name} {!col.isActive ? " (Inactive)" : ""}
+              </option>
+            ))}
           </select>
         </div>
 
