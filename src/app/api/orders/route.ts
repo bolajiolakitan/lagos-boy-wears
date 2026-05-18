@@ -33,15 +33,18 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { items, total, address, paystackRef } = body;
+        const { items, total, address, paymentMethod, paystackRef, cryptoRef, cryptoAsset } = body;
 
         const order = await prisma.order.create({
             data: {
                 userId: (session.user as any).id,
                 total,
                 address,
+                paymentMethod: paymentMethod || "PAYSTACK",
                 paystackRef,
-                status: "PROCESSING",
+                cryptoRef,
+                cryptoAsset,
+                status: (paymentMethod === "CRYPTO") ? "PENDING" : "PROCESSING",
                 items: {
                     create: items.map((item: any) => ({
                         productId: item.productId,

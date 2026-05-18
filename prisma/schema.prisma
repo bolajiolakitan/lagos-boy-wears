@@ -53,16 +53,19 @@ model Product {
 }
 
 model Order {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  user         User        @relation(fields: [userId], references: [id])
-  userId       String      @db.ObjectId
-  items        OrderItem[]
-  total        Int         // total in NGN kobo
-  status       OrderStatus @default(PENDING)
-  address      Json        // { name, phone, street, area, city }
-  paystackRef  String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String      @db.ObjectId
+  items         OrderItem[]
+  total         Int         // total in NGN kobo
+  status        OrderStatus @default(PENDING)
+  address       Json        // { name, phone, street, area, city }
+  paymentMethod String      @default("PAYSTACK")
+  paystackRef   String?
+  cryptoRef     String?
+  cryptoAsset   String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model OrderItem {

@@ -51,7 +51,7 @@ export default async function AdminOrdersPage() {
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
             <thead>
               <tr style={{ background: "var(--black)", color: "var(--white)", textAlign: "left" }}>
-                {["ORDER ID", "DATE", "CUSTOMER", "DELIVERY ADDRESS", "ITEMS", "TOTAL", "STATUS"].map((h) => (
+                {["ORDER ID", "DATE", "CUSTOMER", "DELIVERY ADDRESS", "ITEMS", "TOTAL", "PAYMENT", "STATUS"].map((h) => (
                   <th key={h} style={{ padding: "1rem", fontFamily: "var(--font-mono)", fontSize: "0.7rem", letterSpacing: "0.05em", fontWeight: 400 }}>
                     {h}
                   </th>
@@ -97,6 +97,87 @@ export default async function AdminOrdersPage() {
                   </td>
                   <td style={{ padding: "1rem", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "0.9rem" }}>
                     {formatPrice(o.total)}
+                  </td>
+                  <td style={{ padding: "1rem" }}>
+                    {o.paymentMethod === "CRYPTO" ? (
+                      <div>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.6rem",
+                            fontWeight: 700,
+                            background: "var(--black)",
+                            color: "var(--white)",
+                            padding: "0.15rem 0.4rem",
+                            marginBottom: "0.25rem",
+                            textTransform: "uppercase"
+                          }}
+                        >
+                          {o.cryptoAsset}
+                        </span>
+                        {o.cryptoRef && (
+                          <a
+                            href={
+                              o.cryptoAsset === "USDT"
+                                ? `https://tronscan.org/#/transaction/${o.cryptoRef}`
+                                : o.cryptoAsset === "USDC"
+                                ? `https://solscan.io/tx/${o.cryptoRef}`
+                                : `https://blockstream.info/tx/${o.cryptoRef}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: "block",
+                              fontFamily: "var(--font-mono)",
+                              fontSize: "0.6rem",
+                              color: "var(--gray-400)",
+                              textDecoration: "underline",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              maxWidth: "100px"
+                            }}
+                            title={o.cryptoRef}
+                          >
+                            #{o.cryptoRef.slice(0, 8)}...
+                          </a>
+                        )}
+                      </div>
+                    ) : (
+                      <div>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.6rem",
+                            fontWeight: 700,
+                            background: "var(--gray-200)",
+                            color: "var(--gray-700)",
+                            padding: "0.15rem 0.4rem",
+                            marginBottom: "0.25rem"
+                          }}
+                        >
+                          PAYSTACK
+                        </span>
+                        {o.paystackRef && (
+                          <p
+                            style={{
+                              fontFamily: "var(--font-mono)",
+                              fontSize: "0.6rem",
+                              color: "var(--gray-400)",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              maxWidth: "100px"
+                            }}
+                            title={o.paystackRef}
+                          >
+                            #{o.paystackRef.slice(0, 8)}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </td>
                   <td style={{ padding: "1rem" }}>
                     <OrderStatusSelect orderId={o.id} currentStatus={o.status} />

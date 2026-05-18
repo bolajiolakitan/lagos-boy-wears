@@ -22,6 +22,29 @@ export default function CheckoutPage() {
         lga: "",
     });
     const [loading, setLoading] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState<"PAYSTACK" | "CRYPTO">("PAYSTACK");
+    const [cryptoAsset, setCryptoAsset] = useState<"USDT" | "USDC" | "BTC">("USDT");
+    const [txHash, setTxHash] = useState("");
+    const [copied, setCopied] = useState(false);
+
+    const CRYPTO_ADDRESSES = {
+        USDT: process.env.NEXT_PUBLIC_CRYPTO_USDT_TRC20 || "TYq8S86b5U5H9kH76B8v2H1xXy4zZ11A2B",
+        USDC: process.env.NEXT_PUBLIC_CRYPTO_USDC_SOL || "7y1B8n2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s",
+        BTC: process.env.NEXT_PUBLIC_CRYPTO_BTC || "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+    };
+
+    const CRYPTO_NETWORKS = {
+        USDT: "Tron (TRC-20) network",
+        USDC: "Solana network",
+        BTC: "Bitcoin mainnet",
+    };
+
+    const copyAddress = () => {
+        navigator.clipboard.writeText(CRYPTO_ADDRESSES[cryptoAsset]);
+        setCopied(true);
+        toast.success("Address copied to clipboard!");
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     const availableLgas = useMemo(() => {
         if (!form.state) return [];
@@ -90,6 +113,60 @@ export default function CheckoutPage() {
             },
         });
         handler.openIframe();
+    };
+
+    const handleCryptoCheckout = async () => {
+        if (!form.name || !form.email || !form.phone || !form.street || !form.state || !form.lga) {
+            toast.error("Please fill in all delivery details");
+            return;
+        }
+        if (items.length === 0) {
+            toast.error("Your cart is empty");
+            return;
+        }
+        if (!txHash) {
+            toast.error("Please enter your Transaction Hash (TxHash) to confirm");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const res = await fetch("/api/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    items: items.map((i) => ({
+                        productId: i.id,
+                        size: i.size,
+                        quantity: i.quantity,
+                        price: i.price,
+                    })),
+                    total: totalPrice,
+                    address: {
+                        name: form.name,
+                        phone: form.phone,
+                        street: form.street,
+                        lga: form.lga,
+                        state: form.state,
+                    },
+                    paymentMethod: "CRYPTO",
+                    cryptoAsset,
+                    cryptoRef: txHash,
+                }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                clearCart();
+                toast.success("Crypto order submitted! Awaiting manual confirmation.");
+                router.push("/account");
+            } else {
+                toast.error(data.error || "Failed to place order");
+            }
+        } catch {
+            toast.error("Something went wrong");
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (items.length === 0) {
@@ -205,25 +282,171 @@ export default function CheckoutPage() {
                                 <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Total</span>
                                 <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem" }}>{formatPrice(totalPrice)}</span>
                             </div>
-                            <button
-                                onClick={handlePaystack}
-                                className="btn-primary"
-                                style={{ width: "100%", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
-                                disabled={loading}
-                            >
-                                {loading ? "Processing..." : (
-                                    <>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                                            <line x1="1" y1="10" x2="23" y2="10" />
-                                        </svg>
-                                        Pay with Paystack
-                                    </>
-                                )}
-                            </button>
-                            <p style={{ textAlign: "center", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)", marginTop: "0.75rem", letterSpacing: "0.05em" }}>
-                                SECURED BY PAYSTACK · PCI COMPLIANT
-                            </p>
+
+                            {/* Payment Tabs Selector */}
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: "1.5rem" }}>
+                                <button
+                                    onClick={() => setPaymentMethod("PAYSTACK")}
+                                    style={{
+                                        padding: "0.75rem",
+                                        fontFamily: "var(--font-mono)",
+                                        fontSize: "0.65rem",
+                                        fontWeight: 700,
+                                        letterSpacing: "0.05em",
+                                        textTransform: "uppercase",
+                                        border: paymentMethod === "PAYSTACK" ? "2px solid var(--black)" : "1px solid var(--gray-200)",
+                                        background: paymentMethod === "PAYSTACK" ? "var(--black)" : "var(--white)",
+                                        color: paymentMethod === "PAYSTACK" ? "var(--white)" : "var(--black)",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Card / Transfer
+                                </button>
+                                <button
+                                    onClick={() => setPaymentMethod("CRYPTO")}
+                                    style={{
+                                        padding: "0.75rem",
+                                        fontFamily: "var(--font-mono)",
+                                        fontSize: "0.65rem",
+                                        fontWeight: 700,
+                                        letterSpacing: "0.05em",
+                                        textTransform: "uppercase",
+                                        border: paymentMethod === "CRYPTO" ? "2px solid var(--black)" : "1px solid var(--gray-200)",
+                                        background: paymentMethod === "CRYPTO" ? "var(--black)" : "var(--white)",
+                                        color: paymentMethod === "CRYPTO" ? "var(--white)" : "var(--black)",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Pay with Crypto
+                                </button>
+                            </div>
+
+                            {paymentMethod === "PAYSTACK" ? (
+                                <>
+                                    <button
+                                        onClick={handlePaystack}
+                                        className="btn-primary"
+                                        style={{ width: "100%", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
+                                        disabled={loading}
+                                    >
+                                        {loading ? "Processing..." : (
+                                            <>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                                    <line x1="1" y1="10" x2="23" y2="10" />
+                                                </svg>
+                                                Pay with Paystack
+                                            </>
+                                        )}
+                                    </button>
+                                    <p style={{ textAlign: "center", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)", marginTop: "0.75rem", letterSpacing: "0.05em" }}>
+                                        SECURED BY PAYSTACK · PCI COMPLIANT
+                                    </p>
+                                </>
+                            ) : (
+                                <div style={{ border: "1px solid var(--gray-200)", padding: "1.25rem", background: "var(--gray-50)", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                    <div style={{ display: "flex", gap: "0.25rem" }}>
+                                        {(["USDT", "USDC", "BTC"] as const).map((asset) => (
+                                            <button
+                                                key={asset}
+                                                onClick={() => setCryptoAsset(asset)}
+                                                style={{
+                                                    flex: 1,
+                                                    padding: "0.5rem",
+                                                    fontFamily: "var(--font-mono)",
+                                                    fontSize: "0.65rem",
+                                                    fontWeight: 700,
+                                                    border: cryptoAsset === asset ? "1px solid var(--black)" : "1px solid var(--gray-200)",
+                                                    background: cryptoAsset === asset ? "var(--black)" : "var(--white)",
+                                                    color: cryptoAsset === asset ? "var(--white)" : "var(--gray-500)",
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                {asset}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "0.75rem", borderBottom: "1px solid var(--gray-200)", paddingBottom: "1rem" }}>
+                                        <div style={{ width: "120px", height: "120px", background: "var(--white)", border: "1px solid var(--gray-200)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                            <img
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(CRYPTO_ADDRESSES[cryptoAsset])}`}
+                                                alt="QR Code"
+                                                style={{ width: "100px", height: "100px" }}
+                                            />
+                                        </div>
+                                        <div>
+                                            <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--gray-400)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.25rem" }}>
+                                                Network
+                                            </p>
+                                            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "var(--black)" }}>
+                                                {CRYPTO_NETWORKS[cryptoAsset]}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--gray-400)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>
+                                            Wallet Address
+                                        </p>
+                                        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                                            <input
+                                                type="text"
+                                                readOnly
+                                                value={CRYPTO_ADDRESSES[cryptoAsset]}
+                                                style={{
+                                                    flex: 1,
+                                                    fontFamily: "var(--font-mono)",
+                                                    fontSize: "0.65rem",
+                                                    padding: "0.5rem",
+                                                    background: "var(--white)",
+                                                    border: "1px solid var(--gray-200)",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                }}
+                                            />
+                                            <button
+                                                onClick={copyAddress}
+                                                style={{
+                                                    padding: "0.5rem 0.75rem",
+                                                    fontFamily: "var(--font-mono)",
+                                                    fontSize: "0.65rem",
+                                                    fontWeight: 700,
+                                                    background: "var(--black)",
+                                                    color: "var(--white)",
+                                                    border: "none",
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                {copied ? "COPIED" : "COPY"}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ borderTop: "1px solid var(--gray-200)", paddingTop: "1rem" }}>
+                                        <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--gray-400)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>
+                                            Transaction Hash (TxHash) *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={txHash}
+                                            onChange={(e) => setTxHash(e.target.value)}
+                                            placeholder="Paste your transaction hash here"
+                                            className="input-field"
+                                            style={{ fontSize: "0.75rem", padding: "0.5rem" }}
+                                        />
+                                    </div>
+
+                                    <button
+                                        onClick={handleCryptoCheckout}
+                                        className="btn-primary"
+                                        style={{ width: "100%", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center" }}
+                                        disabled={loading}
+                                    >
+                                        {loading ? "Processing..." : "Confirm Crypto Order"}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
