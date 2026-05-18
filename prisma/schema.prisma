@@ -49,6 +49,7 @@ model Product {
   collectionId String?     @db.ObjectId
   collection   Collection? @relation(fields: [collectionId], references: [id])
   orderItems   OrderItem[]
+  reviews      Review[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }
@@ -92,3 +93,15 @@ model Collection {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Int      // 1 to 5 stars
+  comment   String
+  userName  String   // display name
+  userEmail String   // verification
+  productId String   @db.ObjectId
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+

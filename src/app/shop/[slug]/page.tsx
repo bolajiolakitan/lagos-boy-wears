@@ -37,6 +37,30 @@ export default function ProductDetailPage() {
     const [quantity, setQuantity] = useState(1);
     const [showSizeGuide, setShowSizeGuide] = useState(false);
 
+    // Reviews State
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [reviewsLoading, setReviewsLoading] = useState(true);
+    const [reviewRating, setReviewRating] = useState(5);
+    const [reviewComment, setReviewComment] = useState("");
+    const [reviewName, setReviewName] = useState("");
+    const [reviewEmail, setReviewEmail] = useState("");
+    const [submittingReview, setSubmittingReview] = useState(false);
+
+    const fetchReviews = async () => {
+        if (!params.slug) return;
+        try {
+            const res = await fetch(`/api/products/${params.slug}/reviews`);
+            const data = await res.json();
+            if (data.reviews) {
+                setReviews(data.reviews);
+            }
+        } catch (err) {
+            console.error("Error loading reviews:", err);
+        } finally {
+            setReviewsLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (params.slug) {
             fetch(`/api/products/${params.slug}`)
@@ -46,8 +70,59 @@ export default function ProductDetailPage() {
                     setLoading(false);
                 })
                 .catch(() => setLoading(false));
+
+            fetchReviews();
         }
     }, [params.slug]);
+
+    const handleReviewSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!reviewRating || reviewRating < 1 || reviewRating > 5) {
+            toast.error("Please select a rating.");
+            return;
+        }
+        if (!reviewComment.trim() || reviewComment.trim().length < 3) {
+            toast.error("Please write a comment of at least 3 characters.");
+            return;
+        }
+        if (!reviewName.trim() || reviewName.trim().length < 2) {
+            toast.error("Please enter your name.");
+            return;
+        }
+        if (!reviewEmail.trim() || !reviewEmail.includes("@")) {
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+
+        setSubmittingReview(true);
+        try {
+            const res = await fetch(`/api/products/${params.slug}/reviews`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    rating: reviewRating,
+                    comment: reviewComment,
+                    userName: reviewName,
+                    userEmail: reviewEmail,
+                }),
+            });
+            const data = await res.json();
+            if (data.error) {
+                toast.error(data.error);
+            } else {
+                toast.success("Review submitted successfully!");
+                setReviewComment("");
+                setReviewName("");
+                setReviewEmail("");
+                setReviewRating(5);
+                fetchReviews(); // Reload list
+            }
+        } catch {
+            toast.error("Failed to submit review.");
+        } finally {
+            setSubmittingReview(false);
+        }
+    };
 
     const formatPrice = (p: number) =>
         new Intl.NumberFormat("en-NG", {
@@ -391,6 +466,148 @@ export default function ProductDetailPage() {
                 </div>
             </div>
 
+            {/* Reviews Section */}
+            <div className="container" style={{ borderTop: "2px solid var(--black)", marginTop: "4rem", paddingTop: "4rem", paddingBottom: "4rem" }}>
+                <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "2rem", marginBottom: "2.5rem", letterSpacing: "-0.02em" }}>
+                    CUSTOMER REVIEWS
+                </h2>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "4rem" }} className="reviews-grid">
+                    {/* Summary & Form */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
+                        {/* Rating summary */}
+                        <div style={{ background: "var(--gray-50)", border: "2px solid var(--black)", padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+                            <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: "0.08em", color: "var(--gray-400)", marginBottom: "0.5rem" }}>AVERAGE RATING</p>
+                            <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "3rem", lineHeight: 1, marginBottom: "0.5rem" }}>
+                                {reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : "0.0"}
+                            </h3>
+                            <div style={{ display: "flex", gap: "0.15rem", marginBottom: "0.75rem" }}>
+                                {Array.from({ length: 5 }).map((_, i) => {
+                                    const avg = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) : 0;
+                                    const fill = i < Math.round(avg);
+                                    return (
+                                        <span key={i} style={{ fontSize: "1.25rem", color: fill ? "var(--black)" : "var(--gray-200)" }}>★</span>
+                                    );
+                                })}
+                            </div>
+                            <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--gray-500)", letterSpacing: "0.03em" }}>
+                                Based on {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
+                            </p>
+                        </div>
+
+                        {/* Submit review card */}
+                        <div style={{ border: "2px solid var(--black)", padding: "2rem" }}>
+                            <h4 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", marginBottom: "1.5rem", letterSpacing: "-0.01em" }}>
+                                LEAVE A STYLE REVIEW
+                            </h4>
+                            <form onSubmit={handleReviewSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                                <div>
+                                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase" }}>Rating</label>
+                                    <div style={{ display: "flex", gap: "0.4rem" }}>
+                                        {Array.from({ length: 5 }).map((_, idx) => {
+                                            const starVal = idx + 1;
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    type="button"
+                                                    onClick={() => setReviewRating(starVal)}
+                                                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: "1.75rem", color: reviewRating >= starVal ? "var(--black)" : "var(--gray-200)", transition: "color 0.1s ease" }}
+                                                >
+                                                    ★
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="rev-name" style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase" }}>Your Name</label>
+                                    <input
+                                        type="text"
+                                        id="rev-name"
+                                        value={reviewName}
+                                        onChange={(e) => setReviewName(e.target.value)}
+                                        className="input-field"
+                                        placeholder="e.g. Bolaji O."
+                                        required
+                                        style={{ marginBottom: 0 }}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="rev-email" style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase" }}>Email Address</label>
+                                    <input
+                                        type="email"
+                                        id="rev-email"
+                                        value={reviewEmail}
+                                        onChange={(e) => setReviewEmail(e.target.value)}
+                                        className="input-field"
+                                        placeholder="e.g. bolaji@lagosboy.com"
+                                        required
+                                        style={{ marginBottom: 0 }}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="rev-comment" style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase" }}>Comment</label>
+                                    <textarea
+                                        id="rev-comment"
+                                        value={reviewComment}
+                                        onChange={(e) => setReviewComment(e.target.value)}
+                                        className="input-field"
+                                        placeholder="Tell us about the fit, material, and look..."
+                                        rows={4}
+                                        required
+                                        style={{ marginBottom: 0, resize: "vertical", minHeight: "80px", padding: "0.75rem" }}
+                                    />
+                                </div>
+
+                                <button type="submit" className="btn-primary" disabled={submittingReview} style={{ width: "100%", padding: "0.75rem" }}>
+                                    {submittingReview ? "Submitting..." : "Submit Review"}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    {/* Reviews List */}
+                    <div>
+                        <h4 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", marginBottom: "1.5rem", letterSpacing: "-0.01em", paddingBottom: "0.75rem", borderBottom: "2px solid var(--black)" }}>
+                            WHAT THE STREETS ARE SAYING ({reviews.length})
+                        </h4>
+
+                        {reviewsLoading ? (
+                            <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--gray-400)" }}>Loading style reviews...</p>
+                        ) : reviews.length === 0 ? (
+                            <div style={{ textAlign: "center", padding: "4rem 2rem", border: "2px dashed var(--gray-200)" }}>
+                                <p style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.9rem", color: "var(--gray-400)", marginBottom: "0.5rem" }}>No reviews yet</p>
+                                <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--gray-400)" }}>Be the first to share your fit review!</p>
+                            </div>
+                        ) : (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+                                {reviews.map((rev) => (
+                                    <div key={rev.id} style={{ borderBottom: "1px solid var(--gray-200)", paddingBottom: "1.5rem" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.5rem" }}>
+                                            <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: "0.9rem" }}>{rev.userName}</span>
+                                            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)" }}>
+                                                {new Date(rev.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                                            </span>
+                                        </div>
+                                        <div style={{ display: "flex", gap: "0.15rem", marginBottom: "0.75rem" }}>
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                <span key={i} style={{ fontSize: "1rem", color: i < rev.rating ? "var(--black)" : "var(--gray-200)" }}>★</span>
+                                            ))}
+                                        </div>
+                                        <p style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", lineHeight: 1.6, color: "var(--gray-600)" }}>
+                                            {rev.comment}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             {/* Size Guide Modal */}
             {showSizeGuide && (
                 <div
@@ -457,10 +674,17 @@ export default function ProductDetailPage() {
         .product-detail-grid {
           grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         }
+        .reviews-grid {
+          grid-template-columns: 1fr 1.5fr;
+        }
         @media (max-width: 768px) {
           .product-detail-grid {
             grid-template-columns: 1fr !important;
             gap: 2rem !important;
+          }
+          .reviews-grid {
+            grid-template-columns: 1fr !important;
+            gap: 3rem !important;
           }
         }
       `}</style>
