@@ -81,9 +81,9 @@ export default function ProductDetailPage() {
         return (
             <div className="container" style={{ padding: "4rem 1.5rem" }}>
                 <div
+                    className="product-detail-grid"
                     style={{
                         display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
                         gap: "4rem",
                     }}
                 >
@@ -120,9 +120,9 @@ export default function ProductDetailPage() {
                 </div>
 
                 <div
+                    className="product-detail-grid"
                     style={{
                         display: "grid",
-                        gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
                         gap: "clamp(2rem, 5vw, 5rem)",
                         alignItems: "start",
                     }}
@@ -395,9 +395,13 @@ export default function ProductDetailPage() {
             )}
 
             <style>{`
-        @media (max-width: 640px) {
-          .container > div > div:first-child + div {
+        .product-detail-grid {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        }
+        @media (max-width: 768px) {
+          .product-detail-grid {
             grid-template-columns: 1fr !important;
+            gap: 2rem !important;
           }
         }
       `}</style>
