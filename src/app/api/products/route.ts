@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
                 price: true,
                 images: true,
                 sizes: true,
+                colors: true,
                 stock: true,
                 category: true,
                 isActive: true,
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { name, description, price, images, sizes, stock, category, collectionId } = body;
+        const { name, description, price, images, sizes, colors, stock, category, collectionId } = body;
 
         if (!name || !description || !price || !category) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -78,6 +79,7 @@ export async function POST(req: NextRequest) {
                 price: Number(price),
                 images: images || [],
                 sizes: sizes || ["S", "M", "L", "XL", "XXL"],
+                colors: colors || [],
                 stock: Number(stock) || 0,
                 category,
                 collectionId: collectionId || null,

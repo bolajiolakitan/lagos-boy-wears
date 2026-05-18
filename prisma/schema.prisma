@@ -42,6 +42,7 @@ model Product {
   price        Int         // price in NGN kobo (e.g. 2500000 = NGN 25,000)
   images       String[]
   sizes        String[]    // ["S", "M", "L", "XL", "XXL"]
+  colors       String[]    // ["Black", "White", "Cream", "Red"]
   stock        Int         @default(0)
   category     String      // "tops" | "bottoms" | "accessories"
   isActive     Boolean     @default(true)
@@ -75,6 +76,7 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   productId String  @db.ObjectId
   size      String
+  color     String?
   quantity  Int
   price     Int     // price at time of order
 }

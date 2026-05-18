@@ -82,7 +82,11 @@ export default async function AdminOrdersPage() {
                   <td style={{ padding: "1rem" }}>
                     <div style={{ display: "flex", gap: "0.25rem" }}>
                       {o.items.slice(0, 3).map((item: any, idx: number) => (
-                        <div key={idx} style={{ width: "32px", height: "40px", background: "var(--gray-100)", overflow: "hidden", flexShrink: 0 }}>
+                        <div
+                          key={idx}
+                          title={`${item.product?.name || "Product"} (${item.size}${item.color ? ` - ${item.color}` : ""}) x ${item.quantity}`}
+                          style={{ width: "32px", height: "40px", background: "var(--gray-100)", overflow: "hidden", flexShrink: 0 }}
+                        >
                           {item.product?.images?.[0] && (
                             <img src={item.product.images[0]} alt={item.product.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                           )}

@@ -88,7 +88,7 @@ export default function MiniCartDrawer() {
                         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                             {items.map((item) => (
                                 <div
-                                    key={`${item.id}-${item.size}`}
+                                    key={`${item.id}-${item.size}-${item.color || ""}`}
                                     style={{
                                         display: "flex",
                                         gap: "1rem",
@@ -113,13 +113,13 @@ export default function MiniCartDrawer() {
                                         <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "0.9rem", marginBottom: "0.25rem" }}>
                                             {item.name}
                                         </p>
-                                        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--gray-400)", marginBottom: "0.75rem" }}>
-                                            SIZE: {item.size}
+                                        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--gray-400)", marginBottom: "0.75rem", textTransform: "uppercase" }}>
+                                            SIZE: {item.size} {item.color ? `| COLOUR: ${item.color}` : ""}
                                         </p>
                                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                             <div style={{ display: "flex", alignItems: "center", border: "1px solid var(--black)" }}>
                                                 <button
-                                                    onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                                                    onClick={() => updateQuantity(item.id, item.size, item.quantity - 1, item.color)}
                                                     style={{ background: "none", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem" }}
                                                 >
                                                     −
@@ -128,7 +128,7 @@ export default function MiniCartDrawer() {
                                                     {item.quantity}
                                                 </span>
                                                 <button
-                                                    onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                                                    onClick={() => updateQuantity(item.id, item.size, item.quantity + 1, item.color)}
                                                     style={{ background: "none", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem" }}
                                                 >
                                                     +
@@ -139,7 +139,7 @@ export default function MiniCartDrawer() {
                                                     {formatPrice(item.price * item.quantity)}
                                                 </p>
                                                 <button
-                                                    onClick={() => removeItem(item.id, item.size)}
+                                                    onClick={() => removeItem(item.id, item.size, item.color)}
                                                     style={{ background: "none", color: "var(--gray-400)" }}
                                                 >
                                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

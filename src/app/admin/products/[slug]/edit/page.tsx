@@ -28,6 +28,7 @@ export default function EditProductPage() {
     collectionId: "",
     stock: "",
     sizes: [] as string[],
+    colorsInput: "",
     isActive: true,
   });
 
@@ -53,6 +54,7 @@ export default function EditProductPage() {
               collectionId: p.collectionId ?? "",
               stock: String(p.stock),
               sizes: p.sizes ?? [],
+              colorsInput: p.colors ? p.colors.join(", ") : "",
               isActive: p.isActive,
             });
             setImages((p.images ?? []).map((url: string) => ({ url, preview: url })));
@@ -124,6 +126,9 @@ export default function EditProductPage() {
           collectionId: form.collectionId || null,
           stock: Number(form.stock),
           sizes: form.sizes.length > 0 ? form.sizes : ["S", "M", "L", "XL"],
+          colors: form.colorsInput
+            ? form.colorsInput.split(",").map((c) => c.trim()).filter((c) => c.length > 0)
+            : [],
           images: images.map((img) => img.url),
           isActive: form.isActive,
         }),
@@ -269,6 +274,21 @@ export default function EditProductPage() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Colors */}
+        <div>
+          <label style={labelStyle}>Available Colors (Comma-separated)</label>
+          <input
+            type="text"
+            value={form.colorsInput}
+            onChange={(e) => setForm({ ...form, colorsInput: e.target.value })}
+            className="input-field"
+            placeholder="e.g. Cream, Vintage Black, Off-White, Crimson"
+          />
+          <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)", marginTop: "0.5rem", letterSpacing: "0.03em" }}>
+            Separate different color options with commas. Leave blank if product has no colorways.
+          </p>
         </div>
 
         {/* Active toggle */}

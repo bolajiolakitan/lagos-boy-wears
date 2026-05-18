@@ -13,6 +13,7 @@ interface Product {
     price: number;
     images: string[];
     sizes: string[];
+    colors: string[];
     stock: number;
     category: string;
     collection?: {
@@ -31,6 +32,7 @@ export default function ProductDetailPage() {
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [selectedSize, setSelectedSize] = useState("");
+    const [selectedColor, setSelectedColor] = useState("");
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [showSizeGuide, setShowSizeGuide] = useState(false);
@@ -300,6 +302,38 @@ export default function ProductDetailPage() {
                                             }}
                                         >
                                             {size}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Color Selector */}
+                        {product.colors && product.colors.length > 0 && (
+                            <div style={{ marginBottom: "2rem" }}>
+                                <p style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.875rem", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>
+                                    Colour: {selectedColor && <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>{selectedColor}</span>}
+                                </p>
+                                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                                    {product.colors.map((color) => (
+                                        <button
+                                            key={color}
+                                            onClick={() => setSelectedColor(color)}
+                                            style={{
+                                                padding: "0.5rem 1.25rem",
+                                                border: "2px solid var(--black)",
+                                                background: selectedColor === color ? "var(--black)" : "transparent",
+                                                color: selectedColor === color ? "var(--white)" : "var(--black)",
+                                                fontFamily: "var(--font-mono)",
+                                                fontWeight: 700,
+                                                fontSize: "0.7rem",
+                                                letterSpacing: "0.05em",
+                                                textTransform: "uppercase",
+                                                transition: "all 0.15s ease",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            {color}
                                         </button>
                                     ))}
                                 </div>

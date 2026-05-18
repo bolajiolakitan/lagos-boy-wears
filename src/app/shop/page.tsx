@@ -12,6 +12,7 @@ interface Product {
     images: string[];
     category: string;
     sizes: string[];
+    colors?: string[];
     stock: number;
 }
 

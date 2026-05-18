@@ -24,6 +24,7 @@ export default function NewProductPage() {
     collectionId: "",
     stock: "",
     sizes: [] as string[],
+    colorsInput: "",
   });
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [collections, setCollections] = useState<any[]>([]);
@@ -104,12 +105,17 @@ export default function NewProductPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...form,
+          name: form.name,
+          description: form.description,
           price: Number(form.price) * 100,
+          category: form.category,
+          collectionId: form.collectionId || null,
           stock: Number(form.stock),
           images: images.map((img) => img.url),
           sizes: form.sizes.length > 0 ? form.sizes : ["S", "M", "L", "XL"],
-          collectionId: form.collectionId || null,
+          colors: form.colorsInput
+            ? form.colorsInput.split(",").map((c) => c.trim()).filter((c) => c.length > 0)
+            : [],
         }),
       });
 
@@ -344,6 +350,21 @@ export default function NewProductPage() {
           </div>
           <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)", marginTop: "0.5rem", letterSpacing: "0.03em" }}>
             If none selected, defaults to S/M/L/XL
+          </p>
+        </div>
+
+        {/* Colors */}
+        <div>
+          <label style={labelStyle}>Available Colors (Comma-separated)</label>
+          <input
+            type="text"
+            value={form.colorsInput}
+            onChange={(e) => setForm({ ...form, colorsInput: e.target.value })}
+            className="input-field"
+            placeholder="e.g. Cream, Vintage Black, Off-White, Crimson"
+          />
+          <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)", marginTop: "0.5rem", letterSpacing: "0.03em" }}>
+            Separate different color options with commas. Leave blank if product has no colorways.
           </p>
         </div>
 

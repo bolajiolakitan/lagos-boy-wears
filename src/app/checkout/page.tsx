@@ -80,6 +80,7 @@ export default function CheckoutPage() {
                             items: items.map((i) => ({
                                 productId: i.id,
                                 size: i.size,
+                                color: i.color || null,
                                 quantity: i.quantity,
                                 price: i.price,
                             })),
@@ -138,6 +139,7 @@ export default function CheckoutPage() {
                     items: items.map((i) => ({
                         productId: i.id,
                         size: i.size,
+                        color: i.color || null,
                         quantity: i.quantity,
                         price: i.price,
                     })),
@@ -252,14 +254,14 @@ export default function CheckoutPage() {
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.5rem" }}>
                             {items.map((item) => (
-                                <div key={`${item.id}-${item.size}`} style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+                                <div key={`${item.id}-${item.size}-${item.color || ""}`} style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
                                     <div style={{ width: "48px", height: "60px", background: "var(--gray-100)", flexShrink: 0, overflow: "hidden" }}>
                                         {item.image && <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <p style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.85rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.name}</p>
-                                        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)" }}>
-                                            {item.size} × {item.quantity}
+                                        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)", textTransform: "uppercase" }}>
+                                            {item.size} {item.color ? `| ${item.color}` : ""} × {item.quantity}
                                         </p>
                                     </div>
                                     <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", flexShrink: 0 }}>

@@ -35,7 +35,7 @@ export default function CartPage() {
                     <div style={{ borderTop: "2px solid var(--black)", marginBottom: "1rem" }} />
                     {items.map((item) => (
                         <div
-                            key={`${item.id}-${item.size}`}
+                            key={`${item.id}-${item.size}-${item.color || ""}`}
                             style={{
                                 display: "grid",
                                 gridTemplateColumns: "100px 1fr",
@@ -52,7 +52,9 @@ export default function CartPage() {
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
                                     <div>
                                         <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", marginBottom: "0.25rem" }}>{item.name}</h3>
-                                        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--gray-400)", letterSpacing: "0.08em" }}>SIZE: {item.size}</p>
+                                        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--gray-400)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                                            SIZE: {item.size} {item.color ? `| COLOUR: ${item.color}` : ""}
+                                        </p>
                                     </div>
                                     <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem" }}>
                                         {formatPrice(item.price * item.quantity)}
@@ -60,11 +62,11 @@ export default function CartPage() {
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "1rem" }}>
                                     <div style={{ display: "flex", alignItems: "center", border: "1px solid var(--black)" }}>
-                                        <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)} style={{ background: "none", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                                        <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1, item.color)} style={{ background: "none", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
                                         <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", padding: "0 0.75rem" }}>{item.quantity}</span>
-                                        <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)} style={{ background: "none", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                                        <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1, item.color)} style={{ background: "none", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
                                     </div>
-                                    <button onClick={() => removeItem(item.id, item.size)} style={{ background: "none", fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--gray-400)", letterSpacing: "0.05em", textDecoration: "underline" }}>
+                                    <button onClick={() => removeItem(item.id, item.size, item.color)} style={{ background: "none", fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--gray-400)", letterSpacing: "0.05em", textDecoration: "underline" }}>
                                         REMOVE
                                     </button>
                                 </div>
