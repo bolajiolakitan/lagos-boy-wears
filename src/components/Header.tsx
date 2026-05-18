@@ -75,6 +75,22 @@ export default function Header() {
                     className="desktop-nav"
                 >
                     <Link
+                        href="/"
+                        style={{
+                            fontFamily: "var(--font-body)",
+                            fontWeight: 500,
+                            fontSize: "0.875rem",
+                            letterSpacing: "0.05em",
+                            textTransform: "uppercase",
+                            transition: "opacity var(--transition)",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.5")}
+                        onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                    >
+                        Home
+                    </Link>
+
+                    <Link
                         href="/shop"
                         style={{
                             fontFamily: "var(--font-body)",
@@ -239,6 +255,7 @@ export default function Header() {
                     }}
                     className="mobile-menu"
                 >
+                    <Link href="/" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Home</Link>
                     <Link href="/shop" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Shop</Link>
                     <Link href="/collections" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Drops</Link>
                     {session?.user ? (
