@@ -24,6 +24,17 @@ export async function POST(req: NextRequest) {
             });
 
             if (order) {
+                // Verify paid amount matches order total in kobo
+                const paidAmount = event.data.amount;
+                if (paidAmount !== order.total) {
+                    console.error(`Fraud Alert: Amount mismatch for order ${order.id}. Paid: ${paidAmount}, Expected: ${order.total}`);
+                    await prisma.order.update({
+                        where: { id: order.id },
+                        data: { status: "CANCELLED" },
+                    });
+                    return NextResponse.json({ error: "Payment amount mismatch" }, { status: 400 });
+                }
+
                 await prisma.order.update({
                     where: { id: order.id },
                     data: { status: "PROCESSING" },

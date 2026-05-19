@@ -6,7 +6,7 @@ import OrderStatusSelect from "./OrderStatusSelect";
 
 export default async function AdminOrdersPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/account");
+  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
 
   let orders: any[] = [];
   try {
@@ -21,7 +21,7 @@ export default async function AdminOrdersPage() {
       },
       orderBy: { createdAt: "desc" },
     });
-  } catch {}
+  } catch { }
 
   const formatPrice = (p: number) =>
     new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(p / 100);
@@ -126,8 +126,8 @@ export default async function AdminOrdersPage() {
                               o.cryptoAsset === "USDT"
                                 ? `https://tronscan.org/#/transaction/${o.cryptoRef}`
                                 : o.cryptoAsset === "USDC"
-                                ? `https://solscan.io/tx/${o.cryptoRef}`
-                                : `https://blockstream.info/tx/${o.cryptoRef}`
+                                  ? `https://solscan.io/tx/${o.cryptoRef}`
+                                  : `https://blockstream.info/tx/${o.cryptoRef}`
                             }
                             target="_blank"
                             rel="noopener noreferrer"

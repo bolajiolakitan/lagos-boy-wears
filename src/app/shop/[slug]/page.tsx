@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
 
 interface Product {
     id: string;
@@ -28,6 +29,7 @@ export default function ProductDetailPage() {
     const params = useParams();
     const router = useRouter();
     const { addItem } = useCart();
+    const { data: session } = useSession();
 
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
@@ -45,6 +47,13 @@ export default function ProductDetailPage() {
     const [reviewName, setReviewName] = useState("");
     const [reviewEmail, setReviewEmail] = useState("");
     const [submittingReview, setSubmittingReview] = useState(false);
+
+    useEffect(() => {
+        if (session?.user) {
+            setReviewName(session.user.name || "");
+            setReviewEmail(session.user.email || "");
+        }
+    }, [session]);
 
     const fetchReviews = async () => {
         if (!params.slug) return;
@@ -509,72 +518,64 @@ export default function ProductDetailPage() {
                             <h4 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", marginBottom: "1.5rem", letterSpacing: "-0.01em" }}>
                                 LEAVE A STYLE REVIEW
                             </h4>
-                            <form onSubmit={handleReviewSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-                                <div>
-                                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase" }}>Rating</label>
-                                    <div style={{ display: "flex", gap: "0.4rem" }}>
-                                        {Array.from({ length: 5 }).map((_, idx) => {
-                                            const starVal = idx + 1;
-                                            return (
-                                                <button
-                                                    key={idx}
-                                                    type="button"
-                                                    onClick={() => setReviewRating(starVal)}
-                                                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: "1.75rem", color: reviewRating >= starVal ? "var(--black)" : "var(--gray-200)", transition: "color 0.1s ease" }}
-                                                >
-                                                    ★
-                                                </button>
-                                            );
-                                        })}
+                            {session?.user ? (
+                                <form onSubmit={handleReviewSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                                    <div>
+                                        <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase" }}>Rating</label>
+                                        <div style={{ display: "flex", gap: "0.4rem" }}>
+                                            {Array.from({ length: 5 }).map((_, idx) => {
+                                                const starVal = idx + 1;
+                                                return (
+                                                    <button
+                                                        key={idx}
+                                                        type="button"
+                                                        onClick={() => setReviewRating(starVal)}
+                                                        style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: "1.75rem", color: reviewRating >= starVal ? "var(--black)" : "var(--gray-200)", transition: "color 0.1s ease" }}
+                                                    >
+                                                        ★
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div>
-                                    <label htmlFor="rev-name" style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase" }}>Your Name</label>
-                                    <input
-                                        type="text"
-                                        id="rev-name"
-                                        value={reviewName}
-                                        onChange={(e) => setReviewName(e.target.value)}
-                                        className="input-field"
-                                        placeholder="e.g. David K."
-                                        required
-                                        style={{ marginBottom: 0 }}
-                                    />
-                                </div>
+                                    <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)", marginBottom: "-0.5rem" }}>
+                                        Posting securely as **{session.user.name || "Customer"}** ({session.user.email})
+                                    </p>
 
-                                <div>
-                                    <label htmlFor="rev-email" style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase" }}>Email Address</label>
-                                    <input
-                                        type="email"
-                                        id="rev-email"
-                                        value={reviewEmail}
-                                        onChange={(e) => setReviewEmail(e.target.value)}
-                                        className="input-field"
-                                        placeholder="e.g. david@example.com"
-                                        required
-                                        style={{ marginBottom: 0 }}
-                                    />
-                                </div>
+                                    <div>
+                                        <label htmlFor="rev-comment" style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase" }}>Comment</label>
+                                        <textarea
+                                            id="rev-comment"
+                                            value={reviewComment}
+                                            onChange={(e) => setReviewComment(e.target.value)}
+                                            className="input-field"
+                                            placeholder="Tell us about the fit, material, and look..."
+                                            rows={4}
+                                            required
+                                            style={{ marginBottom: 0, resize: "vertical", minHeight: "80px", padding: "0.75rem" }}
+                                        />
+                                    </div>
 
-                                <div>
-                                    <label htmlFor="rev-comment" style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.08em", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase" }}>Comment</label>
-                                    <textarea
-                                        id="rev-comment"
-                                        value={reviewComment}
-                                        onChange={(e) => setReviewComment(e.target.value)}
-                                        className="input-field"
-                                        placeholder="Tell us about the fit, material, and look..."
-                                        rows={4}
-                                        required
-                                        style={{ marginBottom: 0, resize: "vertical", minHeight: "80px", padding: "0.75rem" }}
-                                    />
+                                    <button type="submit" className="btn-primary" disabled={submittingReview} style={{ width: "100%", padding: "0.75rem" }}>
+                                        {submittingReview ? "Submitting..." : "Submit Review"}
+                                    </button>
+                                </form>
+                            ) : (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", textAlign: "center", padding: "1.5rem 0" }}>
+                                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "var(--gray-600)" }}>
+                                        Only logged-in customers can leave style reviews to keep the community spam-free.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push("/auth/login?callbackUrl=" + encodeURIComponent(window.location.pathname))}
+                                        className="btn-primary"
+                                        style={{ width: "100%", padding: "0.75rem" }}
+                                    >
+                                        Sign In to Review
+                                    </button>
                                 </div>
-
-                                <button type="submit" className="btn-primary" disabled={submittingReview} style={{ width: "100%", padding: "0.75rem" }}>
-                                    {submittingReview ? "Submitting..." : "Submit Review"}
-                                </button>
-                            </form>
+                            )}
                         </div>
                     </div>
 
@@ -596,7 +597,31 @@ export default function ProductDetailPage() {
                                 {reviews.map((rev) => (
                                     <div key={rev.id} style={{ borderBottom: "1px solid var(--gray-200)", paddingBottom: "1.5rem" }}>
                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.5rem" }}>
-                                            <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: "0.9rem" }}>{rev.userName}</span>
+                                            <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                                                {rev.userName}
+                                                {rev.isVerified && (
+                                                    <span 
+                                                        title="Verified Purchaser"
+                                                        style={{ 
+                                                            display: "inline-flex", 
+                                                            alignItems: "center", 
+                                                            gap: "0.25rem", 
+                                                            fontSize: "0.6rem", 
+                                                            fontFamily: "var(--font-mono)", 
+                                                            color: "#059669", 
+                                                            background: "#ecfdf5", 
+                                                            border: "1px solid #a7f3d0",
+                                                            padding: "0.1rem 0.35rem", 
+                                                            borderRadius: "3px",
+                                                            fontWeight: 700,
+                                                            textTransform: "uppercase",
+                                                            letterSpacing: "0.05em"
+                                                        }}
+                                                    >
+                                                        ✓ Verified Buyer
+                                                    </span>
+                                                )}
+                                            </span>
                                             <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)" }}>
                                                 {new Date(rev.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                                             </span>

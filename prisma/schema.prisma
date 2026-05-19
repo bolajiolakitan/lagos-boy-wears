@@ -30,6 +30,7 @@ model User {
   name      String
   role      Role     @default(CUSTOMER)
   orders    Order[]
+  reviews   Review[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -102,6 +103,9 @@ model Review {
   userEmail String   // verification
   productId String   @db.ObjectId
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  isVerified Boolean @default(false)
   createdAt DateTime @default(now())
 }
 
