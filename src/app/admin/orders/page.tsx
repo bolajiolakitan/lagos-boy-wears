@@ -6,7 +6,7 @@ import OrderStatusSelect from "./OrderStatusSelect";
 
 export default async function AdminOrdersPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
+  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/account");
 
   let orders: any[] = [];
   try {

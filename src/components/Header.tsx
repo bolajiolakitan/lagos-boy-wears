@@ -124,7 +124,7 @@ export default function Header() {
 
                     {session?.user ? (
                         <>
-                            {(session.user as any).role === "ADMIN" && (
+                             {(session.user as any).role === "ADMIN" ? (
                                 <Link
                                     href="/admin"
                                     style={{
@@ -139,21 +139,22 @@ export default function Header() {
                                 >
                                     Admin
                                 </Link>
+                            ) : (
+                                <Link
+                                    href="/account"
+                                    style={{
+                                        fontFamily: "var(--font-body)",
+                                        fontWeight: 500,
+                                        fontSize: "0.875rem",
+                                        letterSpacing: "0.05em",
+                                        textTransform: "uppercase",
+                                    }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.5")}
+                                    onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                                >
+                                    Account
+                                </Link>
                             )}
-                            <Link
-                                href="/account"
-                                style={{
-                                    fontFamily: "var(--font-body)",
-                                    fontWeight: 500,
-                                    fontSize: "0.875rem",
-                                    letterSpacing: "0.05em",
-                                    textTransform: "uppercase",
-                                }}
-                                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.5")}
-                                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-                            >
-                                Account
-                            </Link>
                             <button
                                 onClick={() => signOut()}
                                 className="btn-ghost"
@@ -260,8 +261,11 @@ export default function Header() {
                     <Link href="/collections" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Drops</Link>
                     {session?.user ? (
                         <>
-                            <Link href="/account" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Account</Link>
-                            {(session.user as any).role === "ADMIN" && <Link href="/admin" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Admin</Link>}
+                            {(session.user as any).role === "ADMIN" ? (
+                                <Link href="/admin" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Admin</Link>
+                            ) : (
+                                <Link href="/account" onClick={() => setMenuOpen(false)} style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem" }}>Account</Link>
+                            )}
                             <button onClick={() => signOut()} style={{ textAlign: "left", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.9rem", background: "none" }}>Sign Out</button>
                         </>
                     ) : (

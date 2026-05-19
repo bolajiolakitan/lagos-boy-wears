@@ -7,7 +7,7 @@ import ProductActions from "./ProductActions";
 
 export default async function AdminProductsPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
+  if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/account");
 
   let products: any[] = [];
   try {

@@ -24,7 +24,13 @@ export default function LoginPage() {
             toast.error(result.error || "Login failed");
         } else {
             toast.success("Welcome back!");
-            router.push("/");
+            const sessionRes = await fetch("/api/auth/session");
+            const session = await sessionRes.json();
+            if (session?.user?.role === "ADMIN") {
+                router.push("/admin");
+            } else {
+                router.push("/");
+            }
             router.refresh();
         }
     };

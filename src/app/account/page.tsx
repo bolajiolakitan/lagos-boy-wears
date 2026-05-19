@@ -14,6 +14,7 @@ const STATUS_CLASSES: Record<string, string> = {
 export default async function AccountPage() {
     const session = await getServerSession(authOptions);
     if (!session?.user) redirect("/auth/login");
+    if ((session.user as any).role === "ADMIN") redirect("/admin");
 
     let orders: any[] = [];
     try {

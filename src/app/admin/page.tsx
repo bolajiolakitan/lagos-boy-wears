@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default async function AdminDashboard() {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/");
+    if (!session?.user || (session.user as any).role !== "ADMIN") redirect("/account");
 
     let revenue = 0;
     let orderCount = 0;
