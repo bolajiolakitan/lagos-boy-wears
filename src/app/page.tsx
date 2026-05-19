@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 async function getFeaturedProducts() {
   try {
@@ -15,6 +17,7 @@ async function getFeaturedProducts() {
 }
 
 export default async function HomePage() {
+  const session = await getServerSession(authOptions);
   const products = await getFeaturedProducts();
 
   const formatPrice = (p: number) =>
@@ -452,9 +455,15 @@ export default async function HomePage() {
                 Join thousands of fashion-forward Lagosians who move different.
               </p>
             </div>
-            <Link href="/auth/register" className="btn-primary" style={{ flexShrink: 0 }}>
-              Create Account
-            </Link>
+            {session?.user ? (
+              <Link href="/shop" className="btn-primary" style={{ flexShrink: 0 }}>
+                Shop Latest Drops
+              </Link>
+            ) : (
+              <Link href="/auth/register" className="btn-primary" style={{ flexShrink: 0 }}>
+                Create Account
+              </Link>
+            )}
           </div>
         </div>
       </section>
