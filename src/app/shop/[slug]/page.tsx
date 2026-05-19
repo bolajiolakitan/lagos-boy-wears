@@ -136,6 +136,10 @@ export default function ProductDetailPage() {
             toast.error("Please select a size");
             return;
         }
+        if (product && product.colors && product.colors.length > 0 && !selectedColor) {
+            toast.error("Please select a colour");
+            return;
+        }
         if (!product) return;
         addItem({
             id: product.id,
@@ -143,6 +147,7 @@ export default function ProductDetailPage() {
             price: product.price,
             image: product.images[0] || "",
             size: selectedSize || "OS",
+            color: selectedColor || undefined,
             quantity,
             slug: product.slug,
         });
@@ -152,6 +157,10 @@ export default function ProductDetailPage() {
     const handleBuyNow = () => {
         if (product && product.sizes.length > 0 && !selectedSize) {
             toast.error("Please select a size");
+            return;
+        }
+        if (product && product.colors && product.colors.length > 0 && !selectedColor) {
+            toast.error("Please select a colour");
             return;
         }
         handleAddToCart();

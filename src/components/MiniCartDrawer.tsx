@@ -135,9 +135,16 @@ export default function MiniCartDrawer() {
                                                 </button>
                                             </div>
                                             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                                                <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "0.9rem" }}>
-                                                    {formatPrice(item.price * item.quantity)}
-                                                </p>
+                                                <div style={{ textAlign: "right" }}>
+                                                    {item.quantity > 1 && (
+                                                        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--gray-400)", marginBottom: "0.15rem" }}>
+                                                            {item.quantity} × {formatPrice(item.price)}
+                                                        </p>
+                                                    )}
+                                                    <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "0.9rem" }}>
+                                                        {formatPrice(item.price * item.quantity)}
+                                                    </p>
+                                                </div>
                                                 <button
                                                     onClick={() => removeItem(item.id, item.size, item.color)}
                                                     style={{ background: "none", color: "var(--gray-400)" }}

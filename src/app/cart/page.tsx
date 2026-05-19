@@ -56,9 +56,16 @@ export default function CartPage() {
                                             SIZE: {item.size} {item.color ? `| COLOUR: ${item.color}` : ""}
                                         </p>
                                     </div>
-                                    <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem" }}>
-                                        {formatPrice(item.price * item.quantity)}
-                                    </p>
+                                    <div style={{ textAlign: "right" }}>
+                                        {item.quantity > 1 && (
+                                            <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--gray-400)", marginBottom: "0.15rem" }}>
+                                                {item.quantity} × {formatPrice(item.price)}
+                                            </p>
+                                        )}
+                                        <p style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem" }}>
+                                            {formatPrice(item.price * item.quantity)}
+                                        </p>
+                                    </div>
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "1rem" }}>
                                     <div style={{ display: "flex", alignItems: "center", border: "1px solid var(--black)" }}>
